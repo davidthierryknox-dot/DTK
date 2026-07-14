@@ -4,7 +4,12 @@ Weekly arXiv traction tracker.
 
 Searches arXiv for recent papers across a fixed set of topics, then enriches
 each hit with "traction" signals (citation counts, Hacker News mentions,
-GitHub stars via Papers with Code) and ranks everything by a combined score.
+Hugging Face Papers upvotes and downstream model/space/dataset adoption)
+and ranks everything by a combined score.
+
+Papers with Code's public API was retired (it now redirects to Hugging Face
+Papers), so HF Papers is used as the community/downstream-adoption signal
+instead of raw GitHub stars.
 
 Output is a JSON report on stdout (and optionally a file), meant to be
 consumed by whatever posts the weekly summary (e.g. a Notion page).
@@ -22,16 +27,17 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 
-ARXIV_API = "http://export.arxiv.org/api/query"
+ARXIV_API = "https://export.arxiv.org/api/query"
 SEMANTIC_SCHOLAR_API = "https://api.semanticscholar.org/graph/v1/paper/arXiv:{arxiv_id}"
-PWC_REPOS_API = "https://paperswithcode.com/api/v1/papers/{paper_id}/repositories/"
-PWC_SEARCH_API = "https://paperswithcode.com/api/v1/papers/"
+HF_PAPERS_API = "https://huggingface.co/api/papers/{arxiv_id}"
 HN_ALGOLIA_API = "https://hn.algolia.com/api/v1/search"
 
 ATOM_NS = {"atom": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
 
 REQUEST_TIMEOUT = 15
 USER_AGENT = "arxiv-traction/1.0 (weekly research tracker)"
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 3
 
 TOPICS = {
     "Harness Engineering": [
@@ -123,82 +129,92 @@ def fetch_arxiv_papers(keywords, since_days, max_results):
     return papers
 
 
+def get_with_retries(url, params, context):
+    last_exc = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = requests.get(url, params=params, headers={"User-Agent": USER_AGENT}, timeout=REQUEST_TIMEOUT)
+        except requests.RequestException as exc:
+            last_exc = exc
+            log(f"{context}: request error on attempt {attempt}: {exc}")
+            time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+            continue
+
+        if resp.status_code == 429 and attempt < MAX_RETRIES:
+            log(f"{context}: rate limited (429), retrying in {RETRY_BACKOFF_SECONDS * attempt}s")
+            time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+            continue
+        if resp.status_code != 200:
+            log(f"{context}: unexpected status {resp.status_code}")
+            return None
+        return resp
+
+    if last_exc:
+        log(f"{context}: giving up after {MAX_RETRIES} attempts: {last_exc}")
+    return None
+
+
 def fetch_citation_count(arxiv_id):
     url = SEMANTIC_SCHOLAR_API.format(arxiv_id=arxiv_id)
-    try:
-        resp = requests.get(
-            url,
-            params={"fields": "citationCount,influentialCitationCount"},
-            headers={"User-Agent": USER_AGENT},
-            timeout=REQUEST_TIMEOUT,
-        )
-        if resp.status_code != 200:
-            return {"citation_count": 0, "influential_citation_count": 0}
-        data = resp.json()
-        return {
-            "citation_count": data.get("citationCount") or 0,
-            "influential_citation_count": data.get("influentialCitationCount") or 0,
-        }
-    except requests.RequestException as exc:
-        log(f"semantic scholar lookup failed for {arxiv_id}: {exc}")
+    resp = get_with_retries(url, {"fields": "citationCount,influentialCitationCount"}, f"semantic scholar ({arxiv_id})")
+    if resp is None:
         return {"citation_count": 0, "influential_citation_count": 0}
+    data = resp.json()
+    return {
+        "citation_count": data.get("citationCount") or 0,
+        "influential_citation_count": data.get("influentialCitationCount") or 0,
+    }
 
 
-def fetch_github_stars(arxiv_id):
-    try:
-        resp = requests.get(
-            PWC_REPOS_API.format(paper_id=arxiv_id),
-            headers={"User-Agent": USER_AGENT},
-            timeout=REQUEST_TIMEOUT,
-        )
-        if resp.status_code != 200:
-            return {"github_stars": 0, "github_repo": None}
-        results = resp.json().get("results", [])
-        if not results:
-            return {"github_stars": 0, "github_repo": None}
-        top = max(results, key=lambda r: r.get("stars") or 0)
-        return {"github_stars": top.get("stars") or 0, "github_repo": top.get("url")}
-    except requests.RequestException as exc:
-        log(f"papers with code lookup failed for {arxiv_id}: {exc}")
-        return {"github_stars": 0, "github_repo": None}
+def fetch_hf_traction(arxiv_id):
+    url = HF_PAPERS_API.format(arxiv_id=arxiv_id)
+    resp = get_with_retries(url, None, f"huggingface papers ({arxiv_id})")
+    empty = {"hf_upvotes": 0, "hf_downstream_models": 0, "hf_downstream_datasets": 0, "hf_downstream_spaces": 0}
+    if resp is None:
+        return empty
+    data = resp.json()
+    return {
+        "hf_upvotes": data.get("upvotes") or 0,
+        "hf_downstream_models": data.get("numTotalModels") or 0,
+        "hf_downstream_datasets": data.get("numTotalDatasets") or 0,
+        "hf_downstream_spaces": data.get("numTotalSpaces") or 0,
+    }
 
 
 def fetch_hn_mentions(title, arxiv_id):
-    try:
-        resp = requests.get(
-            HN_ALGOLIA_API,
-            params={"query": f"{title} OR {arxiv_id}", "tags": "story"},
-            headers={"User-Agent": USER_AGENT},
-            timeout=REQUEST_TIMEOUT,
-        )
-        if resp.status_code != 200:
-            return {"hn_mentions": 0, "hn_top_points": 0, "hn_top_comments": 0, "hn_url": None}
-        hits = resp.json().get("hits", [])
-        if not hits:
-            return {"hn_mentions": 0, "hn_top_points": 0, "hn_top_comments": 0, "hn_url": None}
-        top = max(hits, key=lambda h: h.get("points") or 0)
-        return {
-            "hn_mentions": len(hits),
-            "hn_top_points": top.get("points") or 0,
-            "hn_top_comments": top.get("num_comments") or 0,
-            "hn_url": f"https://news.ycombinator.com/item?id={top['objectID']}" if top.get("objectID") else None,
-        }
-    except requests.RequestException as exc:
-        log(f"HN lookup failed for {title!r}: {exc}")
-        return {"hn_mentions": 0, "hn_top_points": 0, "hn_top_comments": 0, "hn_url": None}
+    empty = {"hn_mentions": 0, "hn_top_points": 0, "hn_top_comments": 0, "hn_url": None}
+    resp = get_with_retries(
+        HN_ALGOLIA_API,
+        {"query": f"{title} OR {arxiv_id}", "tags": "story"},
+        f"HN algolia ({arxiv_id})",
+    )
+    if resp is None:
+        return empty
+    hits = resp.json().get("hits", [])
+    if not hits:
+        return empty
+    top = max(hits, key=lambda h: h.get("points") or 0)
+    return {
+        "hn_mentions": len(hits),
+        "hn_top_points": top.get("points") or 0,
+        "hn_top_comments": top.get("num_comments") or 0,
+        "hn_url": f"https://news.ycombinator.com/item?id={top['objectID']}" if top.get("objectID") else None,
+    }
 
 
 def score_paper(metrics):
     citation = metrics["citation_count"]
     influential = metrics["influential_citation_count"]
-    stars = metrics["github_stars"]
+    hf_upvotes = metrics["hf_upvotes"]
+    hf_adoption = metrics["hf_downstream_models"] + metrics["hf_downstream_datasets"] + metrics["hf_downstream_spaces"]
     hn_points = metrics["hn_top_points"]
     hn_comments = metrics["hn_top_comments"]
 
     return round(
         3 * math.log1p(citation)
         + 5 * math.log1p(influential)
-        + 0.2 * math.log1p(stars)
+        + 0.5 * math.log1p(hf_upvotes)
+        + 0.3 * math.log1p(hf_adoption)
         + 1.0 * math.log1p(hn_points)
         + 0.5 * math.log1p(hn_comments),
         3,
@@ -208,12 +224,12 @@ def score_paper(metrics):
 def enrich_paper(paper, sleep_between_calls):
     citations = fetch_citation_count(paper["arxiv_id"])
     time.sleep(sleep_between_calls)
-    github = fetch_github_stars(paper["arxiv_id"])
+    hf_traction = fetch_hf_traction(paper["arxiv_id"])
     time.sleep(sleep_between_calls)
     hn = fetch_hn_mentions(paper["title"], paper["arxiv_id"])
     time.sleep(sleep_between_calls)
 
-    metrics = {**citations, **github, **hn}
+    metrics = {**citations, **hf_traction, **hn}
     paper.update(metrics)
     paper["traction_score"] = score_paper(metrics)
     return paper
