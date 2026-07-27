@@ -86,9 +86,9 @@ def fetch_arxiv_papers(keywords, since_days, max_results):
         "start": 0,
         "max_results": max_results,
     }
-    url = f"{ARXIV_API}?{urllib.parse.urlencode(params)}"
-    resp = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=REQUEST_TIMEOUT)
-    resp.raise_for_status()
+    resp = get_with_retries(ARXIV_API, params, f"arXiv ({query[:40]}...)", max_retries=4, backoff_seconds=10)
+    if resp is None:
+        return []
     root = ET.fromstring(resp.content)
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=since_days)
@@ -129,20 +129,20 @@ def fetch_arxiv_papers(keywords, since_days, max_results):
     return papers
 
 
-def get_with_retries(url, params, context):
+def get_with_retries(url, params, context, max_retries=MAX_RETRIES, backoff_seconds=RETRY_BACKOFF_SECONDS):
     last_exc = None
-    for attempt in range(1, MAX_RETRIES + 1):
+    for attempt in range(1, max_retries + 1):
         try:
             resp = requests.get(url, params=params, headers={"User-Agent": USER_AGENT}, timeout=REQUEST_TIMEOUT)
         except requests.RequestException as exc:
             last_exc = exc
             log(f"{context}: request error on attempt {attempt}: {exc}")
-            time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+            time.sleep(backoff_seconds * attempt)
             continue
 
-        if resp.status_code == 429 and attempt < MAX_RETRIES:
-            log(f"{context}: rate limited (429), retrying in {RETRY_BACKOFF_SECONDS * attempt}s")
-            time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+        if resp.status_code == 429 and attempt < max_retries:
+            log(f"{context}: rate limited (429), retrying in {backoff_seconds * attempt}s")
+            time.sleep(backoff_seconds * attempt)
             continue
         if resp.status_code != 200:
             log(f"{context}: unexpected status {resp.status_code}")
@@ -150,7 +150,7 @@ def get_with_retries(url, params, context):
         return resp
 
     if last_exc:
-        log(f"{context}: giving up after {MAX_RETRIES} attempts: {last_exc}")
+        log(f"{context}: giving up after {max_retries} attempts: {last_exc}")
     return None
 
 
@@ -239,11 +239,8 @@ def run(since_days, max_per_topic, sleep_between_calls):
     all_papers = []
     for topic, keywords in TOPICS.items():
         log(f"searching arXiv for topic '{topic}'")
-        try:
-            papers = fetch_arxiv_papers(keywords, since_days, max_per_topic)
-        except requests.RequestException as exc:
-            log(f"arXiv query failed for topic '{topic}': {exc}")
-            continue
+        papers = fetch_arxiv_papers(keywords, since_days, max_per_topic)
+        time.sleep(sleep_between_calls)
 
         log(f"  {len(papers)} papers within last {since_days} days, enriching traction signals")
         for paper in papers:
