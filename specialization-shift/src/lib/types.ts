@@ -43,6 +43,14 @@ export type SingleChoiceItem = {
   stem: string;
   scenario?: string[];
   stimulus?: "sequence" | "anomaly-grid" | "wason" | "matrix" | "dependency" | "state" | "flow" | "record";
+  /**
+   * When set, answer options render as glyph tiles at the same visual
+   * fidelity as the stimulus, rather than as plain text — the option text
+   * itself would otherwise be a lower-fidelity shortcut around the visual
+   * reasoning the item is meant to measure (matters most for matrix items,
+   * whose options are themselves patterns, not descriptions).
+   */
+  optionRender?: "dots";
   options: SingleChoiceOption[];
   correctKey: string;
 };

@@ -9,6 +9,7 @@ import { Matrix3x3 } from "../stimuli/Matrix3x3";
 import { DependencyGraph } from "../stimuli/DependencyGraph";
 import { StateChips } from "../stimuli/StateChips";
 import { FlowDiagram } from "../stimuli/FlowDiagram";
+import { Dots, parseDotGlyph } from "../stimuli/MatrixDots";
 import type { Answer, LikertItem, PerformanceItem, Section } from "../../lib/types";
 
 const STIMULUS_COMPONENTS: Record<string, () => React.JSX.Element> = {
@@ -75,6 +76,19 @@ export function ItemScreen({
           options={item.options}
           value={value}
           onChange={(key) => onAnswerChange({ kind: "single-choice", value: key })}
+          renderOption={
+            item.optionRender === "dots"
+              ? (option) => {
+                  const { count, filled } = parseDotGlyph(option.label);
+                  return (
+                    <>
+                      <Dots count={count} filled={filled} size={20} />
+                      <span className="visually-hidden">{option.label}</span>
+                    </>
+                  );
+                }
+              : undefined
+          }
         />
       </>
     );

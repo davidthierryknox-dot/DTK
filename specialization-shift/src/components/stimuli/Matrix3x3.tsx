@@ -1,3 +1,5 @@
+import { Dots } from "./MatrixDots";
+
 type CellSpec = { count: number; filled: boolean } | "question";
 
 // Corpus SA-1: count increments left to right; fill alternates by row (open, filled, open).
@@ -14,25 +16,6 @@ const GRID: CellSpec[][] = [
   ],
   [{ count: 1, filled: false }, { count: 2, filled: false }, "question"],
 ];
-
-function Dots({ count, filled }: { count: number; filled: boolean }) {
-  const width = count * 20 - 4;
-  return (
-    <svg width={width} height="16" viewBox={`0 0 ${width} 16`} aria-hidden="true">
-      {Array.from({ length: count }, (_, i) => (
-        <circle
-          key={i}
-          cx={8 + i * 20}
-          cy="8"
-          r="7"
-          fill={filled ? "var(--ink)" : "none"}
-          stroke="var(--ink)"
-          strokeWidth="2"
-        />
-      ))}
-    </svg>
-  );
-}
 
 export function Matrix3x3() {
   return (

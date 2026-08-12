@@ -169,6 +169,7 @@ export const SA_ITEMS: PerformanceItem[] = [
     points: 2,
     stem: "Which completes the matrix?",
     stimulus: "matrix",
+    optionRender: "dots",
     options: [
       { key: "A", label: "●●●" },
       { key: "B", label: "○○○" },

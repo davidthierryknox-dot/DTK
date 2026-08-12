@@ -1,11 +1,15 @@
+import type { ReactNode } from "react";
+
 export function SingleChoiceList({
   options,
   value,
   onChange,
+  renderOption,
 }: {
   options: { key: string; label: string }[];
   value: string | undefined;
   onChange: (key: string) => void;
+  renderOption?: (option: { key: string; label: string }) => ReactNode;
 }) {
   return (
     <div className="option-list" role="radiogroup">
@@ -23,7 +27,7 @@ export function SingleChoiceList({
             <span className="option-control option-control--radio">
               {checked && <span className="option-control__fill" />}
             </span>
-            <span>{option.label}</span>
+            <span>{renderOption ? renderOption(option) : option.label}</span>
           </button>
         );
       })}
