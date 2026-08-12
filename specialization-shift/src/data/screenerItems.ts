@@ -1,4 +1,113 @@
 import type { LikertItem, PerformanceItem } from "../lib/types";
+import type { StimulusSpec } from "../lib/stimulusTypes";
+
+const PR_1_SEQUENCE: StimulusSpec = {
+  kind: "sequence",
+  data: {
+    groups: [
+      ["triangle", "triangle", "square"],
+      ["triangle", "triangle", "square"],
+      ["triangle", "triangle", "square"],
+      ["triangle", "square", "triangle"],
+      ["triangle", "triangle", "square"],
+    ],
+  },
+};
+
+const PR_2_ANOMALY: StimulusSpec = {
+  kind: "anomaly-grid",
+  data: { rows: 5, cols: 5, anomalyRow: 3, anomalyCol: 3, showLabels: true },
+};
+
+const RL_1_WASON: StimulusSpec = {
+  kind: "wason",
+  data: {
+    cards: [
+      { index: 1, text: "CONTAINS A DATE OF BIRTH" },
+      { index: 2, text: "NO DATE OF BIRTH" },
+      { index: 3, text: "ENCRYPTED" },
+      { index: 4, text: "NOT ENCRYPTED" },
+    ],
+  },
+};
+
+const RL_4_RECORD: StimulusSpec = {
+  kind: "record",
+  data: {
+    recordA: "RX-4471-BB / 2024-11-03 / QTY 1,240 / LOT 88-A / REV 2",
+    recordB: "RX-4471-B8 / 2024-11-03 / QTY 1,240 / LOT 88-A / REV 2",
+  },
+};
+
+const SA_1_MATRIX: StimulusSpec = {
+  kind: "matrix",
+  data: {
+    grid: [
+      [
+        { kind: "dots", count: 1, filled: false },
+        { kind: "dots", count: 2, filled: false },
+        { kind: "dots", count: 3, filled: false },
+      ],
+      [
+        { kind: "dots", count: 1, filled: true },
+        { kind: "dots", count: 2, filled: true },
+        { kind: "dots", count: 3, filled: true },
+      ],
+      [{ kind: "dots", count: 1, filled: false }, { kind: "dots", count: 2, filled: false }, "question"],
+    ],
+  },
+};
+
+const SA_2_DEPENDENCY: StimulusSpec = {
+  kind: "dependency",
+  data: {
+    nodes: [
+      { id: "A", x: 60, y: 120 },
+      { id: "B", x: 190, y: 120 },
+      { id: "C", x: 190, y: 220 },
+      { id: "D", x: 320, y: 60 },
+    ],
+    edges: [
+      ["A", "B"],
+      ["B", "D"],
+      ["B", "C"],
+    ],
+  },
+};
+
+const SA_3_STATE: StimulusSpec = {
+  kind: "state",
+  data: {
+    rules: [
+      "Press advances one state, cycling OFF → DIM → BRIGHT → OFF …",
+      "Hold returns it to OFF from any state.",
+    ],
+    sequence: ["Press", "Press", "Hold", "Press", "Press", "Press", "Press"],
+  },
+};
+
+const SA_4_FLOW: StimulusSpec = {
+  kind: "flow",
+  data: {
+    width: 700,
+    height: 460,
+    boxes: [
+      { id: "start", label: "Package arrives", x: 160, y: 12, w: 200, h: 56 },
+      { id: "d1", label: "Is it heavy?", x: 160, y: 118, w: 200, h: 64 },
+      { id: "wait1", label: "Wait for a human", x: 480, y: 118, w: 200, h: 64 },
+      { id: "d2", label: "Is it fragile?", x: 160, y: 248, w: 200, h: 64 },
+      { id: "wait2", label: "Wait for a human", x: 480, y: 248, w: 200, h: 64 },
+      { id: "deliver", label: "Deliver it", x: 160, y: 382, w: 200, h: 56 },
+    ],
+    edges: [
+      { from: "start", to: "d1", direction: "vertical" },
+      { from: "d1", to: "wait1", direction: "horizontal", label: "YES" },
+      { from: "d1", to: "d2", direction: "vertical", label: "NO" },
+      { from: "d2", to: "wait2", direction: "horizontal", label: "YES" },
+      { from: "d2", to: "deliver", direction: "vertical", label: "NO" },
+    ],
+  },
+};
 
 // Verbatim from corpus Part 3. Do not alter stems, options, or keys without
 // re-checking against the corpus — this is the source of truth for content.
@@ -11,7 +120,7 @@ export const PR_ITEMS: PerformanceItem[] = [
     title: "Anomaly in a regular field",
     points: 2,
     stem: "Five groups. Four follow the same rule. One does not. Which group breaks the pattern?",
-    stimulus: "sequence",
+    stimulusSpec: PR_1_SEQUENCE,
     options: [
       { key: "A", label: "Group 1" },
       { key: "B", label: "Group 2" },
@@ -27,7 +136,7 @@ export const PR_ITEMS: PerformanceItem[] = [
     title: "Embedded anomaly under visual load",
     points: 2,
     stem: "Every tile below is the same symbol, rotated the same way — except one. Which tile is different?",
-    stimulus: "anomaly-grid",
+    stimulusSpec: PR_2_ANOMALY,
     options: [
       { key: "A", label: "Row 2, Column 4" },
       { key: "B", label: "Row 3, Column 3" },
@@ -95,7 +204,7 @@ export const RL_ITEMS: PerformanceItem[] = [
     points: 2,
     stem: "You can see one fact about each of four records. You may turn over only the cards you need to check whether the rule has been broken. Which records must you check?",
     scenario: ["A records rule states: “If a record contains a date of birth, that record must be encrypted.”"],
-    stimulus: "wason",
+    stimulusSpec: RL_1_WASON,
     options: [
       { key: "A", label: "1 and 3" },
       { key: "B", label: "1 and 4" },
@@ -149,7 +258,7 @@ export const RL_ITEMS: PerformanceItem[] = [
     title: "Precision under near-identity",
     points: 2,
     stem: "Two records should be identical. How many differences are there?",
-    stimulus: "record",
+    stimulusSpec: RL_4_RECORD,
     options: [
       { key: "A", label: "None" },
       { key: "B", label: "One" },
@@ -168,7 +277,7 @@ export const SA_ITEMS: PerformanceItem[] = [
     title: "Matrix reasoning, two rules combined",
     points: 2,
     stem: "Which completes the matrix?",
-    stimulus: "matrix",
+    stimulusSpec: SA_1_MATRIX,
     optionRender: "dots",
     options: [
       { key: "A", label: "●●●" },
@@ -185,7 +294,7 @@ export const SA_ITEMS: PerformanceItem[] = [
     title: "Dependency ordering",
     points: 2,
     stem: "Four steps in a build. The arrows mean “must happen before.” Which order is valid?",
-    stimulus: "dependency",
+    stimulusSpec: SA_2_DEPENDENCY,
     options: [
       { key: "A", label: "A, B, C, D" },
       { key: "B", label: "A, C, B, D" },
@@ -201,7 +310,7 @@ export const SA_ITEMS: PerformanceItem[] = [
     title: "Nested state tracking",
     points: 2,
     stem: "Starting at OFF, the sequence runs left to right below. What state is the light in?",
-    stimulus: "state",
+    stimulusSpec: SA_3_STATE,
     options: [
       { key: "A", label: "OFF" },
       { key: "B", label: "DIM" },
@@ -217,7 +326,7 @@ export const SA_ITEMS: PerformanceItem[] = [
     title: "Representation mapping",
     points: 2,
     stem: "A delivery robot follows written rules. Here is what it did. Which written rule set produces exactly this behaviour?",
-    stimulus: "flow",
+    stimulusSpec: SA_4_FLOW,
     options: [
       { key: "A", label: "“Wait for a human if the package is heavy. Otherwise deliver it.”" },
       { key: "B", label: "“Wait for a human if the package is heavy or fragile. Otherwise deliver it.”" },

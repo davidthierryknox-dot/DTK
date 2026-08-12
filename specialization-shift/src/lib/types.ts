@@ -1,7 +1,11 @@
+import type { StimulusSpec } from "./stimulusTypes";
+
 export type Construct = "PR" | "RL" | "SA";
 export type ToleranceCode = "REP" | "RIG" | "ISO";
 
 export const CONSTRUCTS: Construct[] = ["PR", "RL", "SA"];
+
+export type Instrument = "screener" | "battery";
 
 export type PerformanceItemId =
   | "PR-1"
@@ -15,7 +19,10 @@ export type PerformanceItemId =
   | "SA-1"
   | "SA-2"
   | "SA-3"
-  | "SA-4";
+  | "SA-4"
+  | `PR-F${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`
+  | `SA-F${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`
+  | `RL-F${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
 
 export type ToleranceItemId =
   | "T-REP-1"
@@ -23,15 +30,22 @@ export type ToleranceItemId =
   | "T-RIG-1"
   | "T-RIG-2"
   | "T-ISO-1"
-  | "T-ISO-2";
+  | "T-ISO-2"
+  | `T-REP-F${1 | 2 | 3 | 4 | 5 | 6}`
+  | `T-RIG-F${1 | 2 | 3 | 4 | 5 | 6}`
+  | `T-ISO-F${1 | 2 | 3 | 4 | 5 | 6}`;
 
-export type ModifierItemId = "M-DEPTH" | "M-SWITCH";
+export type ModifierItemId = "M-DEPTH" | "M-SWITCH" | `M-D${1 | 2 | 3 | 4}` | `M-S${1 | 2 | 3 | 4}`;
 
 export type ItemId = PerformanceItemId | ToleranceItemId | ModifierItemId;
 
 export type SingleChoiceOption = {
   key: string;
   label: string;
+  /** For optionRender: "flow" (SA-F9) — each option is itself a small diagram. */
+  flow?: import("./stimulusTypes").FlowStimulusData;
+  /** For optionRender: "arrows" (SA-F8) — each option is a rotated-glyph tile. */
+  arrows?: { count: number; filled: boolean; rotation: 0 | 90 | 180 | 270 };
 };
 
 export type SingleChoiceItem = {
@@ -42,15 +56,16 @@ export type SingleChoiceItem = {
   points: number;
   stem: string;
   scenario?: string[];
-  stimulus?: "sequence" | "anomaly-grid" | "wason" | "matrix" | "dependency" | "state" | "flow" | "record";
+  stimulusSpec?: StimulusSpec;
   /**
-   * When set, answer options render as glyph tiles at the same visual
-   * fidelity as the stimulus, rather than as plain text — the option text
-   * itself would otherwise be a lower-fidelity shortcut around the visual
-   * reasoning the item is meant to measure (matters most for matrix items,
-   * whose options are themselves patterns, not descriptions).
+   * When set, answer options render as glyph tiles or mini diagrams at the
+   * same visual fidelity as the stimulus, rather than as plain text — the
+   * option text itself would otherwise be a lower-fidelity shortcut around
+   * the visual reasoning the item is meant to measure (matters most for
+   * matrix items and reverse-mapping items, whose options are themselves
+   * patterns/diagrams, not descriptions).
    */
-  optionRender?: "dots";
+  optionRender?: "dots" | "flow" | "arrows";
   options: SingleChoiceOption[];
   correctKey: string;
 };
@@ -70,6 +85,12 @@ export type MultiSelectItem = {
   stem: string;
   penaltyNote: string;
   options: MultiSelectOption[];
+  /**
+   * raw = correct − incorrect, floored at 0 (corpus PR-4 scoring rule).
+   * Thresholds scale with how many valid options exist; default matches
+   * PR-4/PR-F4's 4-valid-option formula (2pt at raw≥3, 1pt at raw=2).
+   */
+  scoreThresholds?: { twoPt: number; onePt: number };
 };
 
 export type PerformanceItem = SingleChoiceItem | MultiSelectItem;
@@ -99,10 +120,14 @@ export type Answer =
 
 export type Answers = Partial<Record<ItemId, Answer>>;
 
-export type Section = "PR" | "RL" | "SA" | "TOL" | "MOD";
-
+// Step routing carries its own display strings (section label, item counter
+// total) rather than looking them up from a construct code, so the screener
+// and full battery — which label sections differently ("Pattern & Anomaly"
+// vs "Section A1 — Pattern & Anomaly") and have different totals (20 vs 56)
+// — can share the same screen components.
 export type Step =
   | { kind: "opening" }
-  | { kind: "section-intro"; section: Section }
-  | { kind: "item"; id: ItemId; section: Section; index: number }
+  | { kind: "timer-opt-in" }
+  | { kind: "section-intro"; sectionLabel: string; body: string }
+  | { kind: "item"; id: ItemId; sectionLabel: string; index: number; total: number; timed: boolean }
   | { kind: "report" };

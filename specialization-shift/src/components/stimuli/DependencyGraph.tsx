@@ -1,22 +1,8 @@
+import type { DependencyStimulusData, DependencyNode } from "../../lib/stimulusTypes";
+
 const RADIUS = 28;
 
-type Node = { id: string; x: number; y: number };
-
-// Corpus SA-2: A → B → D, and B → C.
-const NODES: Node[] = [
-  { id: "A", x: 60, y: 120 },
-  { id: "B", x: 190, y: 120 },
-  { id: "C", x: 190, y: 220 },
-  { id: "D", x: 320, y: 60 },
-];
-
-const EDGES: [string, string][] = [
-  ["A", "B"],
-  ["B", "D"],
-  ["B", "C"],
-];
-
-function trimmedEndpoints(from: Node, to: Node) {
+function trimmedEndpoints(from: DependencyNode, to: DependencyNode) {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
@@ -30,14 +16,16 @@ function trimmedEndpoints(from: Node, to: Node) {
   };
 }
 
-export function DependencyGraph() {
-  const byId = Object.fromEntries(NODES.map((n) => [n.id, n]));
+export function DependencyGraph({ data }: { data: DependencyStimulusData }) {
+  const byId = Object.fromEntries(data.nodes.map((n) => [n.id, n]));
+  const maxX = Math.max(...data.nodes.map((n) => n.x)) + RADIUS + 20;
+  const maxY = Math.max(...data.nodes.map((n) => n.y)) + RADIUS + 20;
   return (
     <div>
       <svg
-        width="380"
-        height="260"
-        viewBox="0 0 380 260"
+        width={maxX}
+        height={maxY}
+        viewBox={`0 0 ${maxX} ${maxY}`}
         role="img"
         aria-label="See text alternative below the stimulus."
       >
@@ -46,7 +34,7 @@ export function DependencyGraph() {
             <path d="M0,0 L8,4 L0,8 Z" fill="var(--ink)" />
           </marker>
         </defs>
-        {EDGES.map(([fromId, toId]) => {
+        {data.edges.map(([fromId, toId]) => {
           const { x1, y1, x2, y2 } = trimmedEndpoints(byId[fromId], byId[toId]);
           return (
             <line
@@ -61,7 +49,7 @@ export function DependencyGraph() {
             />
           );
         })}
-        {NODES.map((node) => (
+        {data.nodes.map((node) => (
           <g key={node.id}>
             <circle cx={node.x} cy={node.y} r={RADIUS} fill="var(--surface)" stroke="var(--ink)" strokeWidth="2" />
             <text
@@ -80,9 +68,10 @@ export function DependencyGraph() {
         ))}
       </svg>
       <p className="visually-hidden">
-        Four steps, labeled A, B, C, and D, connected by arrows meaning "must happen before." There is an arrow from
-        A to B, an arrow from B to D, and an arrow from B to C. Use the arrows to work out which orderings respect
-        every dependency.
+        {data.nodes.length} steps, labeled {data.nodes.map((n) => n.id).join(", ")}, connected by arrows meaning
+        "must happen before." The arrows are:{" "}
+        {data.edges.map(([from, to]) => `${from} to ${to}`).join("; ")}. Use the arrows to work out which orderings
+        respect every dependency.
       </p>
     </div>
   );

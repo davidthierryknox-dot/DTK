@@ -22,6 +22,59 @@ export const SECTION_INTRO_COPY: Record<string, { title: string; body: string }>
   },
 };
 
+// Instrument B (full battery) opening copy — corpus Part 4 doesn't specify a
+// battery-specific opening screen verbatim, only the mandatory disclaimers
+// (§1.2: not an IQ test, no clinical score, no normative sample — "must
+// appear before the first item"). Composed from those same disclaimers,
+// adjusted for the battery's actual duration and section count.
+export const BATTERY_OPENING_COPY = [
+  "This is not an IQ test. It produces no clinical score and compares you to no one — there is no normative sample behind it.",
+  "This is the full battery: the same three specialised roles as the short version, measured in more depth across seven sections — pattern & anomaly, systems & abstraction, rule & logic, three sections on the conditions each role imposes, and one on how you focus. About 35–45 minutes.",
+  "There is no failing result. Every profile has a peak somewhere.",
+  "Take as long as you want on any question. Only one section offers an optional timer, and it's your choice — everything else is untimed.",
+];
+
+export const BATTERY_SECTION_INTRO_COPY: Record<string, { title: string; body: string }> = {
+  A1: { title: "Section A1 — Pattern & Anomaly", body: "Ten questions about spotting the thing that's off." },
+  A2: { title: "Section A2 — Systems & Abstraction", body: "Ten questions about holding a structure together in your head." },
+  B: { title: "Section B — Rule & Logic", body: "Ten questions about applying a rule exactly as written. Untimed." },
+  C1: {
+    title: "Section C1 — Condition Tolerance",
+    body: "Six questions about repetition and a critical field of work. No right answers — only accurate ones.",
+  },
+  C2: {
+    title: "Section C2 — Condition Tolerance",
+    body: "Six questions about rules, documentation, and margin for error. No right answers — only accurate ones.",
+  },
+  C3: {
+    title: "Section C3 — Condition Tolerance",
+    body: "Six questions about isolation and depth. No right answers — only accurate ones.",
+  },
+  D: { title: "Section D — Depth Signature", body: "Eight questions about focus and switching." },
+};
+
+// §4.2 — timer opt-in, verbatim from corpus.
+export const TIMER_OPT_IN_COPY = {
+  question: "Do you want a timer on this section?",
+  body: "A timer gives you an extra piece of information — how your accuracy holds up under pressure. It does not change your track results in any way. Most people find it more stressful and no more useful. If you're not sure, skip it.",
+};
+
+export const PRESSURE_NOTE_COPY: Record<"holds" | "drops", string> = {
+  holds: "Your accuracy holds up under time pressure.",
+  drops:
+    "You're more accurate with time than without it. That's a condition, not a limit — and all three of these tracks are untimed work.",
+};
+
+// §4.5 — PR-F10/RL-F10 pairing, "surface this in the report as a one-line observation."
+export const LETTER_SPIRIT_COPY: Record<"spirit" | "letter" | "both" | "neither", string> = {
+  both: "On the item testing rule-letter against rule-purpose, you read it both ways — technically compliant, but not in spirit. That's the sharpest possible reading of a rule set.",
+  spirit:
+    "On the item testing rule-letter against rule-purpose, you leaned toward the spirit of the rule over its letter.",
+  letter:
+    "On the item testing rule-letter against rule-purpose, you leaned toward the letter of the rule over its spirit.",
+  neither: "",
+};
+
 // §6.3 — shape copy. {DOMINANT} / {SECONDARY} are track names.
 export function shapeCopy(shapeType: "Spiked" | "Leaning" | "Level", dominant: string, secondary: string): string {
   switch (shapeType) {

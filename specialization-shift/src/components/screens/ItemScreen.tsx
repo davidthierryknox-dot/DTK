@@ -1,4 +1,4 @@
-import type * as React from "react";
+import type { ReactNode } from "react";
 import { Header } from "../Header";
 import { LikertList, MultiSelectList, SingleChoiceList } from "../OptionList";
 import { SequenceGroups } from "../stimuli/SequenceGroups";
@@ -9,25 +9,43 @@ import { Matrix3x3 } from "../stimuli/Matrix3x3";
 import { DependencyGraph } from "../stimuli/DependencyGraph";
 import { StateChips } from "../stimuli/StateChips";
 import { FlowDiagram } from "../stimuli/FlowDiagram";
-import { Dots, parseDotGlyph } from "../stimuli/MatrixDots";
-import type { Answer, LikertItem, PerformanceItem, Section } from "../../lib/types";
+import { TwoView } from "../stimuli/TwoView";
+import { Balance } from "../stimuli/Balance";
+import { Dots, Arrows, parseDotGlyph } from "../stimuli/MatrixDots";
+import type { Answer, LikertItem, PerformanceItem } from "../../lib/types";
+import type { StimulusSpec } from "../../lib/stimulusTypes";
 
-const STIMULUS_COMPONENTS: Record<string, () => React.JSX.Element> = {
-  sequence: SequenceGroups,
-  "anomaly-grid": AnomalyGrid,
-  wason: WasonCards,
-  record: RecordComparison,
-  matrix: Matrix3x3,
-  dependency: DependencyGraph,
-  state: StateChips,
-  flow: FlowDiagram,
-};
+function StimulusRenderer({ spec }: { spec: StimulusSpec }) {
+  switch (spec.kind) {
+    case "sequence":
+      return <SequenceGroups data={spec.data} />;
+    case "anomaly-grid":
+      return <AnomalyGrid data={spec.data} />;
+    case "wason":
+      return <WasonCards data={spec.data} />;
+    case "record":
+      return <RecordComparison data={spec.data} />;
+    case "matrix":
+      return <Matrix3x3 data={spec.data} />;
+    case "dependency":
+      return <DependencyGraph data={spec.data} />;
+    case "state":
+      return <StateChips data={spec.data} />;
+    case "flow":
+      return <FlowDiagram data={spec.data} />;
+    case "two-view":
+      return <TwoView data={spec.data} />;
+    case "balance":
+      return <Balance data={spec.data} />;
+  }
+}
 
 export function ItemScreen({
   item,
-  section,
+  sectionLabel,
   index,
   total,
+  timed,
   answer,
   onAnswerChange,
   onBack,
@@ -35,9 +53,10 @@ export function ItemScreen({
   canGoBack,
 }: {
   item: PerformanceItem | LikertItem;
-  section: Section;
+  sectionLabel: string;
   index: number;
   total: number;
+  timed?: boolean;
   answer: Answer | undefined;
   onAnswerChange: (answer: Answer) => void;
   onBack: () => void;
@@ -45,12 +64,12 @@ export function ItemScreen({
   canGoBack: boolean;
 }) {
   let canContinue = false;
-  let body: React.ReactNode = null;
+  let body: ReactNode = null;
 
   if (item.kind === "single-choice") {
     const value = answer?.kind === "single-choice" ? answer.value : undefined;
     canContinue = Boolean(value);
-    const Stimulus = item.stimulus ? STIMULUS_COMPONENTS[item.stimulus] : undefined;
+    const isMonoRecord = item.stimulusSpec?.kind === "record";
     body = (
       <>
         <p className="item-stem">{item.stem}</p>
@@ -63,11 +82,11 @@ export function ItemScreen({
             ))}
           </div>
         )}
-        {Stimulus && (
+        {item.stimulusSpec && (
           <>
             <div className="stimulus-spacer" />
-            <div className={`stimulus-panel${item.stimulus === "record" ? " stimulus-panel--mono" : ""}`}>
-              <Stimulus />
+            <div className={`stimulus-panel${isMonoRecord ? " stimulus-panel--mono" : ""}`}>
+              <StimulusRenderer spec={item.stimulusSpec} />
             </div>
           </>
         )}
@@ -77,15 +96,35 @@ export function ItemScreen({
           value={value}
           onChange={(key) => onAnswerChange({ kind: "single-choice", value: key })}
           renderOption={
-            item.optionRender === "dots"
+            item.optionRender
               ? (option) => {
-                  const { count, filled } = parseDotGlyph(option.label);
-                  return (
-                    <>
-                      <Dots count={count} filled={filled} size={20} />
-                      <span className="visually-hidden">{option.label}</span>
-                    </>
-                  );
+                  const full = item.options.find((o) => o.key === option.key);
+                  if (item.optionRender === "dots") {
+                    const { count, filled } = parseDotGlyph(option.label);
+                    return (
+                      <>
+                        <Dots count={count} filled={filled} size={20} />
+                        <span className="visually-hidden">{option.label}</span>
+                      </>
+                    );
+                  }
+                  if (item.optionRender === "arrows" && full?.arrows) {
+                    return (
+                      <>
+                        <Arrows count={full.arrows.count} filled={full.arrows.filled} rotation={full.arrows.rotation} size={20} />
+                        <span className="visually-hidden">{option.label}</span>
+                      </>
+                    );
+                  }
+                  if (item.optionRender === "flow" && full?.flow) {
+                    return (
+                      <>
+                        <FlowDiagram data={full.flow} compact />
+                        <span className="visually-hidden">{option.label}</span>
+                      </>
+                    );
+                  }
+                  return option.label;
                 }
               : undefined
           }
@@ -124,9 +163,10 @@ export function ItemScreen({
 
   return (
     <div className="screen enter">
-      <Header section={section} index={index} total={total} />
+      <Header label={sectionLabel} index={index} total={total} />
       <div className="content-column">
         <div className="item-body">
+          {timed && <p className="timed-note">Timed section</p>}
           {body}
           <div className="item-footer">
             <button type="button" className="nav-button" onClick={onBack} disabled={!canGoBack}>

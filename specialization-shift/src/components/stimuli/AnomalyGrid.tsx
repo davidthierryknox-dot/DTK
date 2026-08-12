@@ -1,9 +1,5 @@
-const ROWS = 5;
-const COLS = 5;
-// Corpus PR-2: anomaly at Row 3, Column 3 — differs from its neighbours by
-// reflection only, never by size, weight, colour, or spacing.
-const ANOMALY_ROW = 3;
-const ANOMALY_COL = 3;
+import { Fragment } from "react";
+import type { AnomalyGridStimulusData } from "../../lib/stimulusTypes";
 
 function BracketGlyph({ mirrored }: { mirrored: boolean }) {
   return (
@@ -21,36 +17,44 @@ function BracketGlyph({ mirrored }: { mirrored: boolean }) {
   );
 }
 
-export function AnomalyGrid() {
+export function AnomalyGrid({ data }: { data: AnomalyGridStimulusData }) {
+  const { rows, cols, anomalyRow, anomalyCol, showLabels } = data;
   return (
     <div>
-      <div className="anomaly-grid-wrap" role="img" aria-label="See text alternative below the stimulus.">
-        <div />
-        {Array.from({ length: COLS }, (_, i) => (
-          <span className="anomaly-label" key={`col-label-${i}`}>
-            C{i + 1}
-          </span>
-        ))}
-        {Array.from({ length: ROWS }, (_, rIdx) => {
+      <div
+        className="anomaly-grid-wrap"
+        style={{ gridTemplateColumns: `${showLabels ? "auto " : ""}repeat(${cols}, 32px)` }}
+        role="img"
+        aria-label="See text alternative below the stimulus."
+      >
+        {showLabels && (
+          <>
+            <div />
+            {Array.from({ length: cols }, (_, i) => (
+              <span className="anomaly-label" key={`col-label-${i}`}>
+                C{i + 1}
+              </span>
+            ))}
+          </>
+        )}
+        {Array.from({ length: rows }, (_, rIdx) => {
           const r = rIdx + 1;
           return (
-            <>
-              <span className="anomaly-label" key={`row-label-${r}`}>
-                R{r}
-              </span>
-              {Array.from({ length: COLS }, (_, cIdx) => {
+            <Fragment key={`row-${r}`}>
+              {showLabels && <span className="anomaly-label">R{r}</span>}
+              {Array.from({ length: cols }, (_, cIdx) => {
                 const c = cIdx + 1;
-                const mirrored = r === ANOMALY_ROW && c === ANOMALY_COL;
+                const mirrored = r === anomalyRow && c === anomalyCol;
                 return <BracketGlyph mirrored={mirrored} key={`cell-${r}-${c}`} />;
               })}
-            </>
+            </Fragment>
           );
         })}
       </div>
       <p className="visually-hidden">
-        A 5 by 5 grid of tiles, columns labeled C1 through C5 and rows labeled R1 through R5. Every tile shows the
-        same symbol in the same rotation, except exactly one tile, which shows the symbol mirrored. Scan the grid
-        row by row to find the mirrored tile.
+        A {rows} by {cols} grid of tiles{showLabels ? ", columns and rows labeled" : ""}. Every tile shows the same
+        symbol in the same rotation, except exactly one tile, which shows the symbol mirrored. Scan the grid
+        systematically to find the mirrored tile.
       </p>
     </div>
   );

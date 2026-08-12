@@ -164,6 +164,13 @@ button {
   border: 0;
 }
 
+.timed-note {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+
 /* Options — §5 */
 .penalty-note {
   color: var(--ink-2);
@@ -628,9 +635,8 @@ button {
 /* Anomaly grid (PR-2) */
 .anomaly-grid-wrap {
   display: grid;
-  grid-template-columns: auto repeat(5, 56px);
-  grid-template-rows: auto repeat(5, 56px);
-  gap: 16px;
+  /* grid-template-columns set inline per instance — cell/grid size varies by item (5x5 vs 8x8). */
+  gap: 12px;
   align-items: center;
   justify-items: center;
 }
@@ -666,4 +672,169 @@ button {
   font-family: var(--font-sans);
   font-size: 13px;
   color: var(--ink-3);
+}
+
+/* Two-view (PR-F5): table + bar chart of the same data */
+.two-view {
+  width: 100%;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.two-view__table {
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.two-view__table th,
+.two-view__table td {
+  text-align: left;
+  padding: 8px 16px 8px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.two-view__table th {
+  color: var(--ink-3);
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.two-view__chart {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: center;
+}
+
+.two-view__bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.two-view__bar-label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink-2);
+  flex: 0 0 64px;
+}
+
+.two-view__bar-track {
+  flex: 1;
+  height: 14px;
+  background: var(--ground);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.two-view__bar-fill {
+  height: 100%;
+  background: var(--stroke);
+}
+
+.two-view__bar-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink);
+  flex: 0 0 44px;
+  text-align: right;
+}
+
+/* Balance / equivalence (SA-F6) */
+.balance {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.balance__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.balance__row--question {
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  margin-top: 4px;
+}
+
+.balance__equals {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  color: var(--ink-3);
+}
+
+.balance__question-mark {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink-3);
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Instrument picker */
+.instrument-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.instrument-option {
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-sans);
+}
+
+.instrument-option:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--hairline));
+}
+
+.instrument-option:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.instrument-option__title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.instrument-option__meta {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-deep);
+}
+
+.instrument-option__body {
+  font-size: 15px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.pressure-note {
+  color: var(--ink-2);
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.letter-spirit-note {
+  color: var(--ink-2);
+  font-size: 16px;
 }

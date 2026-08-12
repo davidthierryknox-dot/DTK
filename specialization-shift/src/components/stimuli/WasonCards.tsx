@@ -1,15 +1,10 @@
-const CARDS = [
-  { index: 1, text: "CONTAINS A DATE OF BIRTH" },
-  { index: 2, text: "NO DATE OF BIRTH" },
-  { index: 3, text: "ENCRYPTED" },
-  { index: 4, text: "NOT ENCRYPTED" },
-];
+import type { WasonStimulusData } from "../../lib/stimulusTypes";
 
-export function WasonCards() {
+export function WasonCards({ data }: { data: WasonStimulusData }) {
   return (
     <div>
       <div className="wason-cards" role="img" aria-label="See text alternative below the stimulus.">
-        {CARDS.map((card) => (
+        {data.cards.map((card) => (
           <div className="wason-card" key={card.index}>
             <span className="wason-card__text">{card.text}</span>
             <span className="wason-card__index">({card.index})</span>
@@ -17,9 +12,9 @@ export function WasonCards() {
         ))}
       </div>
       <p className="visually-hidden">
-        Four cards on a desk, numbered 1 to 4. Card 1 reads "contains a date of birth." Card 2 reads "no date of
-        birth." Card 3 reads "encrypted." Card 4 reads "not encrypted." You can see one fact about each card; the
-        other side is unknown until turned over.
+        {data.cards.length} cards on a desk, numbered 1 to {data.cards.length}.{" "}
+        {data.cards.map((c) => `Card ${c.index} reads "${c.text.toLowerCase()}."`).join(" ")} You can see one fact
+        about each card; the other side is unknown until turned over.
       </p>
     </div>
   );

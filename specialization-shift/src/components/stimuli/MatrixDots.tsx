@@ -32,3 +32,42 @@ export function parseDotGlyph(label: string): { count: number; filled: boolean }
   const glyphs = [...label];
   return { count: glyphs.length, filled: glyphs[0] === "●" };
 }
+
+// Single arrow glyph — used where a matrix rule needs a rotation-sensitive
+// shape; dots are rotationally symmetric so they can't carry a rotation rule.
+function ArrowGlyph({ filled, rotation, size = 24 }: { filled: boolean; rotation: 0 | 90 | 180 | 270; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <polygon
+        points="12,3 21,19 3,19"
+        fill={filled ? "var(--ink)" : "none"}
+        stroke="var(--ink)"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        transform={`rotate(${rotation} 12 12)`}
+      />
+    </svg>
+  );
+}
+
+// Repeated arrow glyphs, laid out the same way Dots lays out circles, so a
+// matrix cell (or answer option) can carry count + fill + rotation together.
+export function Arrows({
+  count,
+  filled,
+  rotation,
+  size = 24,
+}: {
+  count: number;
+  filled: boolean;
+  rotation: 0 | 90 | 180 | 270;
+  size?: number;
+}) {
+  return (
+    <span style={{ display: "inline-flex", gap: 2 }}>
+      {Array.from({ length: count }, (_, i) => (
+        <ArrowGlyph filled={filled} rotation={rotation} size={size} key={i} />
+      ))}
+    </span>
+  );
+}
