@@ -1,1 +1,36 @@
-[]
+[
+  {
+    "hash": "6ab96a03413c97a8772d375750dea8191e5ca1cf46ba59368e092ffee1981fc8",
+    "company": "InvestEngine",
+    "title": "Head of Strategy & Business Operations",
+    "dateProcessed": "2026-09-04",
+    "attempts": 3,
+    "keywordCoveragePct": 60.4,
+    "missingKeywords": [
+      "executive meeting architecture",
+      "annual strategic planning",
+      "multi-year strategic planning",
+      "market sizing",
+      "build-versus-buy",
+      "start and stop gates",
+      "monthly CEO pack",
+      "quarterly Board pack",
+      "leading a team of five",
+      "hiring into open roles",
+      "fintech",
+      "financial services",
+      "FCA-regulated",
+      "retail investment",
+      "wealth",
+      "savings platform",
+      "VC",
+      "private equity",
+      "P&L ownership",
+      "team of four or more",
+      "Board"
+    ],
+    "cvDocUrl": null,
+    "coverLetterDocUrl": null,
+    "status": "ALERTED_INCOMPLETE"
+  }
+]
