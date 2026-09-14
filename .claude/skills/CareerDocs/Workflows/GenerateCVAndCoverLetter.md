@@ -114,6 +114,15 @@ or eyeball this — the tool is the source of truth.
 - **If attempt 5 completes and `coveragePct < 100`**: STOP. Do not attempt a 6th
   revision and do not publish either document. Go to Step 7 (alert) instead of Step 6.
 
+## Step 5.5 — AI-Writing Style Pass (only on 100% coverage, before publishing)
+
+Before Step 6, run the check in `References/AIWritingSignsGuide.md` against the
+combined draft: grep for the flagged vocabulary list, dash-break overuse, and
+negative-parallelism patterns. Fix every hit, then re-run Step 4's coverage check to
+confirm no keyword substring was accidentally broken during the style edit — a style
+pass is not exempt from re-verification. Report the before/after hit counts to the
+user alongside the coverage confirmation in Step 6.
+
 ## Step 6 — Publish to Google Docs (only on 100% coverage)
 
 For each of the two documents:

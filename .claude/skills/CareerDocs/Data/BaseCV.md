@@ -105,6 +105,14 @@ non-deterministic domains.
 - Corporate Strategy Researcher — Extern
 - Certified Partner — Anthropic
 
+## Additional confirmed capability (user-confirmed 2026-09-14, not tied to one dated role)
+Across enterprise sales & GTM roles, ran demand generation and omnichannel engagement:
+LinkedIn campaigns, existing-customer referral programs, trade-show booth traffic, and
+co-marketing partnerships formed during speaking engagements with other companies. The
+user has not specified which employer/date range each activity belongs to — when using
+this, describe it generally ("across my GTM roles") rather than attributing it to one
+specific company unless the user confirms which.
+
 ## Known gaps (do not paper over these with vague language in drafts)
 No employer above is a UK FCA-regulated retail investment/wealth/savings platform, a
 VC or private-equity firm, or a literal "financial services" institution — all are

@@ -61,6 +61,7 @@ The user pastes a job description. This skill:
 | `References/SoftSkills.md` | Canonical soft-skill keyword bank |
 | `References/ExperienceOverSkills.md` | a16z-derived drafting philosophy (experience > skills) |
 | `References/TargetRoleProfiles.md` | Exemplar target-role JD/KPI library (Avalara/Vertex ecosystem) for fast recognition of recurring terminology — background context, not a source of live applications |
+| `References/AIWritingSignsGuide.md` | Final style/credibility QA pass (Wikipedia's "Signs of AI writing" checklist) run after 100% keyword coverage, before publishing |
 
 ## Data
 

@@ -38,20 +38,11 @@
     "company": "Loyverse",
     "title": "Growth Leader (GTM, incl. Loyverse Pay)",
     "dateProcessed": "2026-09-14",
-    "attempts": 7,
-    "keywordCoveragePct": 85.5,
-    "missingKeywords": [
-      "launch plans",
-      "full-funnel GTM",
-      "paid channels",
-      "owned channels",
-      "earned channels",
-      "referral partners",
-      "channel mix",
-      "fintech GTM"
-    ],
+    "attempts": 8,
+    "keywordCoveragePct": 100,
+    "missingKeywords": [],
     "cvDocUrl": null,
-    "coverLetterDocUrl": null,
-    "status": "ALERTED_INCOMPLETE"
+    "coverLetterDocUrl": "https://docs.google.com/document/d/1oNQLDVesi3Xe8kyeXWqV0AcMQ1KKweKunYBil1Iyy3Y/edit",
+    "status": "COMPLETE"
   }
 ]
