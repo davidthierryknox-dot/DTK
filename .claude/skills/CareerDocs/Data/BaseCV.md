@@ -62,6 +62,12 @@ non-deterministic domains.
 - Scoped compliance-led initiatives and kept delivery a £1B M&A project on track.
 - Led core business process mapping and gap analysis across cross-functional
   stakeholder groups.
+- Context (not a personally-confirmed deal, but true of the employer during this
+  tenure): Vertex's core indirect-tax platform included a dedicated hospitality/
+  lodging and F&B tax compliance line (Vertex Indirect Tax for Hospitality) during
+  this period — relevant market context for restaurant/hospitality domain framing,
+  but do not claim David personally sold or scoped it unless he confirms that
+  specifically.
 
 ### Senior Team Lead, Enterprise Sales — Avalara (May 2019 – Mar 2023)
 - Drove +35% YoY ARR growth (£7.1M) and maintained 110% net revenue retention over
@@ -70,6 +76,14 @@ non-deterministic domains.
   lowering churn by 12%.
 - Coached and developed individual contributors while carrying direct
   executive-relationship ownership.
+- Mapped end-to-end transaction workflows and omnichannel sales (dine-in, takeout,
+  third-party delivery) for restaurant and food & beverage clients against Avalara's
+  F&B tax-code taxonomy (prepared food vs. grocery vs. vending vs. restaurant
+  supplies), including state-specific prepared-food rules (e.g. CA's 80/80 rule,
+  WA's 75% rule) and POS-integrated daily tax calculation (the DAVO by Avalara
+  model). Confirmed by the user 2026-09-14, with supporting reference material:
+  Avalara's restaurant sales-tax-compliance blog and Avalara's public F&B tax-code
+  catalog. — user-confirmed, added post base-CV creation.
 
 ### Head of Customer Success — Agosto (Jan 2017 – Apr 2019)
 - Managed Customer Success and Renewals for 100+ Google Cloud Platform clients,
@@ -99,3 +113,9 @@ GTM/startup role (Manzas), enterprise SaaS/Cloud CS (Agosto), or ERP (Oracle). N
 bullet above states a direct-report headcount, P&L ownership, hiring authority for
 open roles, or Board-level reporting. Treat JD requirements on these points as genuine
 gaps to flag to the user, not to be closed by rewording.
+
+Resolved gap (2026-09-14): restaurant industry / F&B domain experience was
+previously listed here as unverified. The user confirmed direct experience mapping
+end-to-end transaction workflows and omnichannel sales for restaurant/F&B clients,
+including Avalara's F&B tax-code taxonomy — see the Avalara bullet above. This is
+now a legitimate, usable claim, not a gap.
