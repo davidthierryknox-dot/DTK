@@ -91,7 +91,7 @@ JD must be captured, not just the obviously important ones.
    CV + CL — coverage is checked across both documents together, since a keyword woven
    naturally into whichever document fits best still counts).
 
-## Step 4 — Mechanical Coverage Check (never self-graded)
+## Step 4 — Mechanical Coverage Check (never self-graded, but not blindly trusted either)
 
 ```bash
 bun .claude/skills/CareerDocs/Tools/JDTool.ts coverage \
@@ -100,7 +100,28 @@ bun .claude/skills/CareerDocs/Tools/JDTool.ts coverage \
 ```
 
 Read `coveragePct` and `missing` directly from the tool's JSON output. Do not estimate
-or eyeball this — the tool is the source of truth.
+or eyeball this — the tool is the source of truth for *substring presence*.
+
+🚨 **Negation blind spot (discovered in production use, 2026-09-17):** the tool does
+plain substring matching and cannot detect negation. A draft that honestly says "I
+have not run credit control, aging, or bad debt collections" contains the literal
+substrings "credit control," "aging," and "bad debt" and will be counted as MATCHED —
+even though the sentence is disclaiming the qualification, not claiming it. This is
+most likely to bite when a JD's core function is a genuine, large gap in the user's
+background (see the Genius Sports "Head of Transactional Processing" run in
+`Data/JDLog.json` for a worked example: raw tool output 78.8%, manually audited real
+coverage ~52%).
+
+**Mandatory manual audit before trusting `matched`:** for every keyword the tool
+reports as matched, re-read the sentence it appears in. If the keyword sits inside a
+denial ("I have not...", "I don't have...", "no working knowledge of...", "haven't
+personally...") or is used only to name something the candidate is asking the employer
+to weigh *against*, it is a false positive — exclude it from your reported coverage
+percentage and tell the user the corrected number, not the tool's raw number. Also
+self-check for weak/overreach matches: a keyword can be lexically present via a
+stretched inference (e.g., claiming "transactional teams" exposure from ERP *sales*
+experience) that doesn't actually hold up — exclude those too. Report both the raw
+tool output and your corrected figure to the user when they diverge.
 
 ## Step 5 — Revise-and-Recheck Loop (up to 5 attempts total)
 

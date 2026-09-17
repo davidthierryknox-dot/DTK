@@ -44,5 +44,43 @@
     "cvDocUrl": null,
     "coverLetterDocUrl": "https://docs.google.com/document/d/1oNQLDVesi3Xe8kyeXWqV0AcMQ1KKweKunYBil1Iyy3Y/edit",
     "status": "COMPLETE"
+  },
+  {
+    "hash": "9943f97c9f85ced33841fa7d3fe1232ed5a870271a5d97391fc495cde45247b8",
+    "company": "Genius Sports",
+    "title": "Head of Transactional Processing",
+    "dateProcessed": "2026-09-17",
+    "attempts": 2,
+    "keywordCoveragePct": 51.9,
+    "missingKeywords": [
+      "global transactional finance teams",
+      "standardised AP processing",
+      "best in class credit control",
+      "discrepancy resolution",
+      "write offs",
+      "month-end close",
+      "quarter-end close",
+      "reporting deadlines",
+      "lead, mentor, and develop",
+      "developing team members",
+      "SOX controls",
+      "invoicing and collections (only appeared inside a denial)",
+      "PO/credit card alignment (only appeared inside a denial)",
+      "OCR (only appeared inside a denial)",
+      "automated billing (only appeared inside a denial)",
+      "global payroll project (only appeared inside a denial)",
+      "common global accounting (only appeared inside a denial)",
+      "credit control (only appeared inside a denial)",
+      "aging (only appeared inside a denial)",
+      "bad debt (only appeared inside a denial)",
+      "year-end close (only appeared inside a denial)",
+      "Workday finance (only appeared inside a denial)",
+      "best practices in transactional processing (named only as something to weigh against, not claimed)",
+      "transactional teams (overreach - inferred from ERP sales exposure, not real)",
+      "multi service line organizations (overreach - same issue)"
+    ],
+    "cvDocUrl": null,
+    "coverLetterDocUrl": null,
+    "status": "ALERTED_INCOMPLETE"
   }
 ]
