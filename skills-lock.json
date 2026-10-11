@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "score-accounts-with-jev": {
+      "source": "clay-run/clay-skill-creator",
+      "sourceType": "github",
+      "skillPath": "skills/shy-rahnama/score-accounts-with-jev/SKILL.md",
+      "computedHash": "4f1fdec62a7bfbff4b3a54ae8b1a3e028d469c1f7edf038947e842d46d3b294e"
+    }
+  }
+}
